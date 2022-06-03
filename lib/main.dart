@@ -49,11 +49,11 @@ class DatabaseHelper {
 }
 
 void main() {
-  runApp(const MyApp());
+  runApp(const SongListScreen());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class SongListScreen extends StatelessWidget {
+  const SongListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +75,37 @@ class MyApp extends StatelessWidget {
               subtitle: Text(allSongs[index].key),
             );
           }),
+        ),
+      ),
+    );
+  }
+}
+
+class SongGridListScreen extends StatelessWidget {
+  const SongGridListScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    late List<Song> allSongs;
+    DatabaseHelper._createInstance()
+        .songs()
+        .then((songs) => {allSongs = songs});
+    return MaterialApp(
+      title: 'Welcome to Flutter',
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Welcome to Flutter'),
+        ),
+        body: Center(
+          child: GridView.builder(
+              gridDelegate:
+                  SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+              itemBuilder: (BuildContext context, int index) {
+                return ListTile(
+                  title: Text(allSongs[index].title),
+                  subtitle: Text(allSongs[index].key),
+                );
+              }),
         ),
       ),
     );
