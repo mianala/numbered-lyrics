@@ -1,49 +1,71 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:flutter/material.dart';
 
 class DatabaseHelper {
-  static late Database _database;
-  static late DatabaseHelper _databaseHelper;
+  static Database? _database;
+  static DatabaseHelper? _databaseHelper;
   DatabaseHelper._createInstance();
 
   factory DatabaseHelper() {
     _databaseHelper ??= DatabaseHelper._createInstance();
-    return _databaseHelper;
+    return _databaseHelper!;
   }
 
-  Future<Database> get database async {
+  Future<Database?> get database async {
     _database ??= await initDB();
     return _database;
   }
 
   Future<Database> initDB() async {
-    WidgetsFlutterBinding.ensureInitialized();
+    var databasesPath = await getDatabasesPath();
+    var path = join(databasesPath, "hira_fiderana.db");
 
-    var db = await openDatabase(join("assets", 'hira_fiderana.db'),
-        // await openDatabase(join(await getDatabasesPath(), 'fiderana_db.db'),
-        onCreate: (db, version) {
-      return db;
-    });
-    return db;
+// Check if the database exists
+    var exists = await databaseExists(path);
+
+    if (!exists) {
+      // Should happen only the first time you launch your application
+      print("Creating new copy from asset");
+
+      // Make sure the parent directory exists
+      try {
+        await Directory(dirname(path)).create(recursive: true);
+      } catch (_) {}
+
+      // Copy from asset
+      ByteData data = await rootBundle.load(join("assets", "hira_fiderana.db"));
+      List<int> bytes =
+          data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+
+      // Write and flush the bytes written
+      await File(path).writeAsBytes(bytes, flush: true);
+    } else {
+      print("Opening existing database");
+    }
+// open the database
+    return await openDatabase(path, readOnly: true);
   }
 
   Future<List<Song>> songs() async {
-    final db = await database;
+    final db = await DatabaseHelper().database;
 
-    final List<Map<String, dynamic>> maps = await db.query('songs');
+    final List<Map<String, dynamic>> maps = await db!.query('songs');
 
     return List.generate(maps.length, (i) {
       return Song(
-        id: maps[i]['id'],
+        id: maps[i]['id'] as int,
         title: maps[i]['title'],
         content: maps[i]['content'],
         key: maps[i]['key'],
-        verses: maps[i]['verses'],
-        number: maps[i]['number'],
+        verses: int.tryParse(maps[i]['verses']) ?? 0,
+        number: maps[i]['number'] as int,
       );
     });
   }
@@ -58,7 +80,7 @@ class SongListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    late List<Song> allSongs;
+    List<Song> allSongs = [];
     DatabaseHelper._createInstance()
         .songs()
         .then((songs) => {allSongs = songs});
@@ -69,13 +91,14 @@ class SongListScreen extends StatelessWidget {
           title: const Text('Welcome to Flutter'),
         ),
         body: Center(
-          child:
-              ListView.builder(itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              title: Text(allSongs[index].title),
-              subtitle: Text(allSongs[index].key),
-            );
-          }),
+          child: ListView.builder(
+              itemCount: allSongs.length,
+              itemBuilder: (BuildContext context, int index) {
+                return ListTile(
+                  title: Text(allSongs[index].title),
+                  subtitle: Text(allSongs[index].key),
+                );
+              }),
         ),
       ),
     );
@@ -87,7 +110,8 @@ class SongGridListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    late List<Song> allSongs;
+    List<Song> allSongs = [];
+
     DatabaseHelper._createInstance()
         .songs()
         .then((songs) => {allSongs = songs});
@@ -101,9 +125,10 @@ class SongGridListScreen extends StatelessWidget {
           child: GridView.builder(
               gridDelegate:
                   SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5),
+              itemCount: allSongs.length,
               itemBuilder: (BuildContext context, int index) {
                 return ListTile(
-                  title: Text(allSongs[index].number),
+                  title: Text(allSongs[index].number.toString()),
                   // subtitle: Text(allSongs[index].key),
                 );
               }),
@@ -133,7 +158,7 @@ class SongDetailScreen extends StatelessWidget {
 
 class Song {
   final int id;
-  final String number;
+  final int number;
   final String content;
   final String title;
   final String key;
