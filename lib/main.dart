@@ -59,7 +59,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var songs = DatabaseHelper.songs();
+    late List<Song> allSongs;
+    DatabaseHelper._createInstance()
+        .songs()
+        .then((songs) => {allSongs = songs});
     return MaterialApp(
       title: 'Welcome to Flutter',
       home: Scaffold(
@@ -70,8 +73,8 @@ class MyApp extends StatelessWidget {
           child:
               ListView.builder(itemBuilder: (BuildContext context, int index) {
             return ListTile(
-              title: Text(all_songs[index].title),
-              subtitle: Text(all_songs[index].key),
+              title: Text(allSongs[index].title),
+              subtitle: Text(allSongs[index].key),
             );
           }),
         ),
