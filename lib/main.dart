@@ -5,15 +5,32 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:flutter/material.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  final database =
-      openDatabase(join(await getDatabasesPath(), 'fiderana_db.db'),
-          onCreate: (db, version) {
-    // todo: isn't needed anymore because songs already present
-    return db.execute(
-        'CREATE TABLE songs(id INTEGER PRIMARY KEY, title TEXT, content TEXT, key TEXT, verses NUMBER, number NUMBER)');
-  });
+class DatabaseHelper {
+  static late Database _database;
+  static late DatabaseHelper _databaseHelper;
+  DatabaseHelper._createInstance();
+
+  factory DatabaseHelper() {
+    _databaseHelper ??= DatabaseHelper._createInstance();
+    return _databaseHelper;
+  }
+
+  Future<Database> get database async {
+    _database ??= await initDB();
+    return _database;
+  }
+
+  Future<Database> initDB() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    var db =
+        await openDatabase(join(await getDatabasesPath(), 'fiderana_db.db'),
+            onCreate: (db, version) {
+      // todo: isn't needed anymore because songs already present
+      return db.execute(
+          'CREATE TABLE songs(id INTEGER PRIMARY KEY, title TEXT, content TEXT, key TEXT, verses NUMBER, number NUMBER)');
+    });
+    return db;
+  }
 
   Future<List<Song>> songs() async {
     final db = await database;
@@ -31,7 +48,9 @@ void main() async {
       );
     });
   }
+}
 
+void main() {
   runApp(const MyApp());
 }
 
@@ -40,7 +59,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const all_songs = songs();
+    var songs = DatabaseHelper.songs();
     return MaterialApp(
       title: 'Welcome to Flutter',
       home: Scaffold(
