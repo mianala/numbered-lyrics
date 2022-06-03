@@ -81,6 +81,24 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class SongDetailScreen extends StatelessWidget {
+  const SongDetailScreen({super.key, required this.song});
+
+  final Song song;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(song.title),
+      ),
+      body: Center(
+        child: Text(song.content),
+      ),
+    );
+  }
+}
+
 class Song {
   final int id;
   final String number;
