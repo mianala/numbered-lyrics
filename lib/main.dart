@@ -99,11 +99,11 @@ class SongGridListScreen extends StatelessWidget {
         body: Center(
           child: GridView.builder(
               gridDelegate:
-                  SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+                  SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5),
               itemBuilder: (BuildContext context, int index) {
                 return ListTile(
-                  title: Text(allSongs[index].title),
-                  subtitle: Text(allSongs[index].key),
+                  title: Text(allSongs[index].number),
+                  // subtitle: Text(allSongs[index].key),
                 );
               }),
         ),
