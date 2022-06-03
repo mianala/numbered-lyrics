@@ -67,5 +67,6 @@ Future<List<Song>> songs() async {
       number: maps [i]['number'],
     );
   });
-
 }
+
+Song findSong(int id) => list.firstWhere((song) => song.id == id);
