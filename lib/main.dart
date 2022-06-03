@@ -2,7 +2,11 @@
 
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final database = openDatabase (
+    join(await getDatabasesPath(), 'fiderana_db.db')
+  )
   runApp(const MyApp());
 }
 
