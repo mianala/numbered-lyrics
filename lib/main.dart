@@ -7,6 +7,7 @@ void main() async {
   final database = openDatabase (
     join(await getDatabasesPath(), 'fiderana_db.db'),
     onCreate: (db,version){
+      // todo: isn't needed anymore because songs already present
       return db.execute('CREATE TABLE songs(id INTEGER PRIMARY KEY, title TEXT, content TEXT, key TEXT, verses NUMBER, number NUMBER)')
     }
   )
@@ -45,4 +46,22 @@ class Song {
     required this.title,
     required this.content,
   });
+}
+
+Future<List<Song>> songs() async {
+  final db = await database;
+
+  final List<Map<String, dynamic>> maps = await db.query('songs');
+
+  return List.generate(maps.length, (i) {
+    return Song(
+      id: maps[i]['id'],
+      title: maps[i]['title'],
+      content: maps[i]['content'],
+      key: maps[i]['key'], 
+      verses: maps[i]['verses'],
+      number: maps [i]['number'],
+    );
+  });
+
 }
