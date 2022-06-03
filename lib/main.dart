@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final database = openDatabase (
-    join(await getDatabasesPath(), 'fiderana_db.db')
+    join(await getDatabasesPath(), 'fiderana_db.db'),
+    onCreate: (db,version){
+      return db.execute('CREATE TABLE songs(id INTEGER PRIMARY KEY, title TEXT, content TEXT, key TEXT, verses NUMBER, number NUMBER)')
+    }
   )
   runApp(const MyApp());
 }
@@ -35,7 +38,7 @@ class Song {
   final String content;
   final String title;
   final String key;
-  final String verses;
+  final Int verses;
 
   const Dog({
     required this.id,
