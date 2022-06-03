@@ -1,6 +1,4 @@
-// Copyright 2018 The Flutter team. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+
 
 import 'package:flutter/material.dart';
 
@@ -25,4 +23,19 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
+}
+
+class Song {
+  final int id;
+  final String number;
+  final String content;
+  final String title;
+  final String key;
+  final String verses;
+
+  const Dog({
+    required this.id,
+    required this.title,
+    required this.content,
+  });
 }
