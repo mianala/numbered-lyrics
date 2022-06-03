@@ -22,12 +22,10 @@ class DatabaseHelper {
 
   Future<Database> initDB() async {
     WidgetsFlutterBinding.ensureInitialized();
-    var db =
-        await openDatabase(join(await getDatabasesPath(), 'fiderana_db.db'),
-            onCreate: (db, version) {
-      // todo: isn't needed anymore because songs already present
-      return db.execute(
-          'CREATE TABLE songs(id INTEGER PRIMARY KEY, title TEXT, content TEXT, key TEXT, verses NUMBER, number NUMBER)');
+    var db = await openDatabase(join("assets", 'hira_fiderana.db'),
+        // await openDatabase(join(await getDatabasesPath(), 'fiderana_db.db'),
+        onCreate: (db, version) {
+      return db;
     });
     return db;
   }
