@@ -22,6 +22,7 @@ class DatabaseHelper {
 
   Future<Database> initDB() async {
     WidgetsFlutterBinding.ensureInitialized();
+
     var db = await openDatabase(join("assets", 'hira_fiderana.db'),
         // await openDatabase(join(await getDatabasesPath(), 'fiderana_db.db'),
         onCreate: (db, version) {
