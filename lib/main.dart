@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
@@ -8,13 +7,31 @@ import 'package:flutter/material.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final database = openDatabase (
-    join(await getDatabasesPath(), 'fiderana_db.db'),
-    onCreate: (db,version){
-      // todo: isn't needed anymore because songs already present
-      return db.execute('CREATE TABLE songs(id INTEGER PRIMARY KEY, title TEXT, content TEXT, key TEXT, verses NUMBER, number NUMBER)')
-    }
-  )
+  final database =
+      openDatabase(join(await getDatabasesPath(), 'fiderana_db.db'),
+          onCreate: (db, version) {
+    // todo: isn't needed anymore because songs already present
+    return db.execute(
+        'CREATE TABLE songs(id INTEGER PRIMARY KEY, title TEXT, content TEXT, key TEXT, verses NUMBER, number NUMBER)');
+  });
+
+  Future<List<Song>> songs() async {
+    final db = await database;
+
+    final List<Map<String, dynamic>> maps = await db.query('songs');
+
+    return List.generate(maps.length, (i) {
+      return Song(
+        id: maps[i]['id'],
+        title: maps[i]['title'],
+        content: maps[i]['content'],
+        key: maps[i]['key'],
+        verses: maps[i]['verses'],
+        number: maps[i]['number'],
+      );
+    });
+  }
+
   runApp(const MyApp());
 }
 
@@ -30,8 +47,14 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Welcome to Flutter'),
         ),
-        body: const Center(
-          child: Text('Hello World'),
+        body: Center(
+          child:
+              ListView.builder(itemBuilder: (BuildContext context, int index) {
+            return ListTile(
+              title: Text(all_songs[index].title),
+              subtitle: Text(all_songs[index].key),
+            );
+          }),
         ),
       ),
     );
@@ -44,30 +67,16 @@ class Song {
   final String content;
   final String title;
   final String key;
-  final Int verses;
+  final int verses;
 
-  const Dog({
+  const Song({
     required this.id,
     required this.title,
     required this.content,
+    required this.key,
+    required this.verses,
+    required this.number,
   });
 }
 
-Future<List<Song>> songs() async {
-  final db = await database;
-
-  final List<Map<String, dynamic>> maps = await db.query('songs');
-
-  return List.generate(maps.length, (i) {
-    return Song(
-      id: maps[i]['id'],
-      title: maps[i]['title'],
-      content: maps[i]['content'],
-      key: maps[i]['key'], 
-      verses: maps[i]['verses'],
-      number: maps [i]['number'],
-    );
-  });
-}
-
-Song findSong(int id) => list.firstWhere((song) => song.id == id);
+Song findSong(int id, songList) => songList.firstWhere((song) => song.id == id);
