@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:flutter/material.dart';
@@ -60,12 +58,12 @@ class DatabaseHelper {
 
     return List.generate(maps.length, (i) {
       return Song(
-        id: maps[i]['id'] as int,
+        id: int.tryParse(maps[i][0]) ?? 0,
+        number: maps[i][1] as int,
         title: maps[i]['title'],
         content: maps[i]['content'],
-        key: maps[i]['key'],
         verses: int.tryParse(maps[i]['verses']) ?? 0,
-        number: maps[i]['number'] as int,
+        key: maps[i]['key'],
       );
     });
   }
@@ -85,21 +83,19 @@ class SongListScreen extends StatelessWidget {
         .songs()
         .then((songs) => {allSongs = songs});
     return MaterialApp(
-      title: 'Welcome to Flutter',
+      title: 'Hira Fiderana',
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Welcome to Flutter'),
+          title: const Text('App Bar'),
         ),
-        body: Center(
-          child: ListView.builder(
-              itemCount: allSongs.length,
-              itemBuilder: (BuildContext context, int index) {
-                return ListTile(
-                  title: Text(allSongs[index].title),
-                  subtitle: Text(allSongs[index].key),
-                );
-              }),
-        ),
+        body: ListView.builder(
+            itemCount: allSongs.length,
+            itemBuilder: (BuildContext context, int index) {
+              return ListTile(
+                title: Text(allSongs[index].title),
+                subtitle: Text(allSongs[index].key),
+              );
+            }),
       ),
     );
   }
@@ -166,11 +162,11 @@ class Song {
 
   const Song({
     required this.id,
+    required this.number,
+    required this.verses,
     required this.title,
     required this.content,
     required this.key,
-    required this.verses,
-    required this.number,
   });
 }
 
