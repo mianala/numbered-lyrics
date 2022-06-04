@@ -57,78 +57,88 @@ class DatabaseHelper {
     final List<Map<String, dynamic>> maps = await db!.query('songs');
 
     return List.generate(maps.length, (i) {
+      // print("number " + maps[i]["number"]);
+      // print("id " + maps[i]["id"]);
+      // print("title " + maps[i]["title"]);
+      // print("key " + maps[i]["key"]);
       return Song(
-        id: int.tryParse(maps[i][0]) ?? 0,
-        number: maps[i][1] as int,
+        id: int.tryParse(maps[i]["id"]) ?? 0,
+        number: int.tryParse(maps[i]["number"]) ?? 0,
         title: maps[i]['title'],
         content: maps[i]['content'],
         verses: int.tryParse(maps[i]['verses']) ?? 0,
-        key: maps[i]['key'],
+        key: maps[i]['key'] ?? "",
       );
     });
   }
 }
 
 void main() {
-  runApp(const SongListScreen());
+  runApp(const SongListViewScreen());
 }
 
-class SongListScreen extends StatelessWidget {
-  const SongListScreen({super.key});
+class SongListViewScreen extends StatelessWidget {
+  const SongListViewScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    List<Song> allSongs = [];
-    DatabaseHelper._createInstance()
-        .songs()
-        .then((songs) => {allSongs = songs});
     return MaterialApp(
       title: 'Hira Fiderana',
       home: Scaffold(
         appBar: AppBar(
           title: const Text('App Bar'),
         ),
-        body: ListView.builder(
-            itemCount: allSongs.length,
-            itemBuilder: (BuildContext context, int index) {
-              return ListTile(
-                title: Text(allSongs[index].title),
-                subtitle: Text(allSongs[index].key),
-              );
+        body: FutureBuilder(
+            future: DatabaseHelper().songs(),
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              if (snapshot.hasData) {
+                return ListView.builder(
+                    itemCount: snapshot.data.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ListTile(
+                        title: Text(
+                            "${snapshot.data[index].number} ${snapshot.data[index].title})"),
+                        subtitle: Text(
+                            "${snapshot.data[index].key} V${snapshot.data[index].verses}"),
+                      );
+                    });
+              } else {
+                return const Center(child: CircularProgressIndicator());
+              }
             }),
       ),
     );
   }
 }
 
-class SongGridListScreen extends StatelessWidget {
-  const SongGridListScreen({super.key});
+// SongGridViewScreen
+class SongGridViewScreen extends StatelessWidget {
+  const SongGridViewScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    List<Song> allSongs = [];
-
-    DatabaseHelper._createInstance()
-        .songs()
-        .then((songs) => {allSongs = songs});
     return MaterialApp(
-      title: 'Welcome to Flutter',
+      title: 'Hira Fiderana',
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Welcome to Flutter'),
+          title: const Text('App Bar'),
         ),
-        body: Center(
-          child: GridView.builder(
-              gridDelegate:
-                  SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5),
-              itemCount: allSongs.length,
-              itemBuilder: (BuildContext context, int index) {
-                return ListTile(
-                  title: Text(allSongs[index].number.toString()),
-                  // subtitle: Text(allSongs[index].key),
-                );
-              }),
-        ),
+        body: FutureBuilder(
+            future: DatabaseHelper().songs(),
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              if (snapshot.hasData) {
+                return GridView.builder(
+                    itemCount: snapshot.data.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 5),
+                    itemBuilder: (BuildContext context, int index) {
+                      Text("${snapshot.data[index].number}");
+                    });
+              } else {
+                return const Center(child: CircularProgressIndicator());
+              }
+            }),
       ),
     );
   }
