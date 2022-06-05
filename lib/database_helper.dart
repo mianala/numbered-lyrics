@@ -53,19 +53,24 @@ class DatabaseHelper {
 
   Future<List<Song>> songs() async {
     final db = await DatabaseHelper().database;
-
     final List<Map<String, dynamic>> maps = await db!.query('songs');
 
     return List.generate(maps.length, (i) {
-      var indexRow = maps[i];
-      return Song(
-        id: int.tryParse(indexRow["id"]) ?? 0,
-        number: int.tryParse(indexRow["number"]) ?? 0,
-        title: indexRow['title'],
-        content: indexRow['content'],
-        verses: int.tryParse(indexRow['verses']) ?? 0,
-        key: indexRow['key'] ?? "",
-      );
+      var map = maps[i];
+      return Song.fromMap(map);
     });
+  }
+
+  Future<List<Song>> searchSong(String search) async {
+    final db = DatabaseHelper().database;
+    List<Song> songs = <Song>[];
+    List<Map<String, dynamic>> maps = await db.query("songs",
+        columns: ["id", "title", "content", "key", "verses", "number"],
+        where: "title LIKE ?",
+        whereArgs: ["%$search%"]);
+    for (int i = 0; i < maps.length; i++) {
+      songs.add(Song.fromMap(maps[i]));
+    }
+    return songs;
   }
 }

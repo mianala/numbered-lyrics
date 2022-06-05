@@ -38,9 +38,14 @@ class SongListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Hira Fiderana'),
-        ),
+        appBar: AppBar(title: const Text('Hira Fiderana'), actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              showSearch(context: context, delegate: SongSearchDelegate());
+            },
+          )
+        ]),
         body: FutureBuilder(
             future: DatabaseHelper().songs(),
             builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -99,6 +104,152 @@ class SongListScreen extends StatelessWidget {
             }),
         // bottomAppBar with icons
         bottomNavigationBar: const BottomBar());
+  }
+}
+
+class SongSearchDelegate extends SearchDelegate<Song> {
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = "";
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        close(
+            context,
+            const Song(
+                id: 0, number: 0, title: "", content: "", verses: 0, key: ''));
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    // display search results
+    return FutureBuilder(
+        future: DatabaseHelper().search(query),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData) {
+            return ListView.builder(
+                itemCount: snapshot.data.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return GestureDetector(
+                    child: Container(
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.black12,
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 60,
+                              child: Text(
+                                "${snapshot.data[index].number}",
+                                style: const TextStyle(fontSize: 16),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            Flexible(
+                                child: Text(
+                              "${snapshot.data[index].title}",
+                              style: const TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            )),
+                          ],
+                        )),
+                    onTap: () {
+                      // Navigator.pushNamed(context, "/song",
+                      //     arguments: {snapshot.data[index]});
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SongPage(
+                            song: snapshot.data[index],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                });
+          } else {
+            return const Center(child: CircularProgressIndicator());
+          }
+        });
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return FutureBuilder(
+        future: DatabaseHelper().songs(),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData) {
+            return ListView.builder(
+                itemCount: snapshot.data.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return GestureDetector(
+                    child: Container(
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.black12,
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 60,
+                              child: Text(
+                                "${snapshot.data[index].number}",
+                                style: const TextStyle(fontSize: 16),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            Flexible(
+                                child: Text(
+                              "${snapshot.data[index].title}",
+                              style: const TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            )),
+                          ],
+                        )),
+                    onTap: () {
+                      // Navigator.pushNamed(context, "/song",
+                      //     arguments: {snapshot.data[index]});
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SongPage(
+                            song: snapshot.data[index],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                });
+          } else {
+            return const Center(child: CircularProgressIndicator());
+          }
+        });
   }
 }
 

@@ -14,4 +14,15 @@ class Song {
     required this.content,
     required this.key,
   });
+
+  static fromMap(Map<String, dynamic> map) {
+    return Song(
+      id: map['id'],
+      number: map['number'],
+      title: map['title'],
+      content: map['content'],
+      key: map['key'],
+      verses: map['verses'],
+    );
+  }
 }
