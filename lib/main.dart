@@ -278,11 +278,6 @@ Widget bottomBar(selectedIndex, context) {
         Navigator.pushNamedAndRemoveUntil(
             context, routes[index], (Route<dynamic> route) => false);
       }
-
-      // if (currentRoute == routes[2] || currentRoute == null) {
-      //   Navigator.pushNamedAndRemoveUntil(
-      //       context, routes[index], (Route<dynamic> route) => false);
-      // }
     },
   );
 }
