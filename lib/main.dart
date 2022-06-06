@@ -1,6 +1,7 @@
 import 'song.dart';
 import 'database_helper.dart';
 import 'package:flutter/material.dart';
+import 'shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,13 +15,17 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Hira Fiderana',
       home: const SongGridViewScreen(),
+      theme: ThemeData(
+        primarySwatch: Colors.red,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
       routes: {
         "/grid": (context) => const SongGridViewScreen(),
         "/list": (context) => const SongListScreen(),
         "/song": (context) => const SongPage(
               song: Song(
-                id: 1,
-                number: 1,
+                id: 0,
+                number: 0,
                 title: "Hira Fiderana",
                 content: "",
                 verses: 0,
@@ -38,14 +43,18 @@ class SongListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('Hira Fiderana'), actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              showSearch(context: context, delegate: SongSearchDelegate());
-            },
-          )
-        ]),
+        appBar: AppBar(
+          title: const Text('Hira Fiderana'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () {
+                showSearch(context: context, delegate: SongSearchDelegate());
+              },
+            )
+          ],
+          automaticallyImplyLeading: false,
+        ),
         body: FutureBuilder(
             future: DatabaseHelper().songs(),
             builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -84,9 +93,6 @@ class SongListScreen extends StatelessWidget {
                               ],
                             )),
                         onTap: () {
-                          // Navigator.pushNamed(context, "/song",
-                          //     arguments: {snapshot.data[index]});
-
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -103,11 +109,14 @@ class SongListScreen extends StatelessWidget {
               }
             }),
         // bottomAppBar with icons
-        bottomNavigationBar: const BottomBar());
+        bottomNavigationBar: bottomBar(1, context));
   }
 }
 
 class SongSearchDelegate extends SearchDelegate<Song> {
+  @override
+  String get searchFieldLabel => "Hitady hira";
+
   @override
   List<Widget> buildActions(BuildContext context) {
     return [
@@ -137,7 +146,7 @@ class SongSearchDelegate extends SearchDelegate<Song> {
   Widget buildResults(BuildContext context) {
     // display search results
     return FutureBuilder(
-        future: DatabaseHelper().search(query),
+        future: DatabaseHelper().searchSong(query),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             return ListView.builder(
@@ -173,9 +182,6 @@ class SongSearchDelegate extends SearchDelegate<Song> {
                           ],
                         )),
                     onTap: () {
-                      // Navigator.pushNamed(context, "/song",
-                      //     arguments: {snapshot.data[index]});
-
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -232,9 +238,6 @@ class SongSearchDelegate extends SearchDelegate<Song> {
                           ],
                         )),
                     onTap: () {
-                      // Navigator.pushNamed(context, "/song",
-                      //     arguments: {snapshot.data[index]});
-
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -253,40 +256,35 @@ class SongSearchDelegate extends SearchDelegate<Song> {
   }
 }
 
-class BottomBar extends StatelessWidget {
-  const BottomBar({Key? key}) : super(key: key);
+Widget bottomBar(selectedIndex, context) {
+  return BottomNavigationBar(
+    items: const <BottomNavigationBarItem>[
+      BottomNavigationBarItem(icon: Icon(Icons.apps), label: "Laharana"),
+      BottomNavigationBarItem(icon: Icon(Icons.list), label: "Lisitra"),
+      BottomNavigationBarItem(icon: Icon(Icons.article), label: "Hira"),
+    ],
+    currentIndex: selectedIndex,
+    onTap: (index) {
+      var currentRoute = ModalRoute.of(context)!.settings.name;
+      var routes = ['/grid', '/list', '/song'];
 
-  @override
-  Widget build(BuildContext context) {
-    return BottomAppBar(
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.apps),
-            onPressed: () {
-              //  navigate to named route
-              Navigator.pushReplacementNamed(context, '/grid');
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.list),
-            onPressed: () {
-              // navigate to home
-              Navigator.pushReplacementNamed(context, '/list');
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.article),
-            onPressed: () {
-              Navigator.pushReplacementNamed(context, '/song');
-            },
-          ),
-        ],
-      ),
-    );
-  }
+      if (currentRoute == routes[index]) {
+        return;
+      }
+
+      if (index == 2) {
+        Navigator.pushNamed(context, routes[index]);
+      } else {
+        Navigator.pushNamedAndRemoveUntil(
+            context, routes[index], (Route<dynamic> route) => false);
+      }
+
+      // if (currentRoute == routes[2] || currentRoute == null) {
+      //   Navigator.pushNamedAndRemoveUntil(
+      //       context, routes[index], (Route<dynamic> route) => false);
+      // }
+    },
+  );
 }
 
 // SongGridViewScreen
@@ -298,6 +296,7 @@ class SongGridViewScreen extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
           title: const Text('Laharan\'kira'),
+          automaticallyImplyLeading: false,
         ),
         body: FutureBuilder(
             future: DatabaseHelper().songs(),
@@ -329,7 +328,7 @@ class SongGridViewScreen extends StatelessWidget {
                 return const Center(child: CircularProgressIndicator());
               }
             }),
-        bottomNavigationBar: const BottomBar());
+        bottomNavigationBar: bottomBar(0, context));
   }
 }
 
@@ -340,42 +339,98 @@ class SongPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // display song title and content
+    if (song.id != 0) {
+      setLatestSong(song);
+      return Scaffold(
+        appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(65),
+            child: AppBar(
+              title: Column(
+                children: [
+                  Text(song.title, style: const TextStyle(fontSize: 20)),
+                  // style subtitle
+                  Flex(
+                    direction: Axis.horizontal,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Text(
+                        "Clé: ${song.key}",
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                      Text("Andininy: ${song.verses.toString()}",
+                          style: const TextStyle(fontSize: 14)),
+                    ],
+                  )
+                ],
+              ),
+            )),
+        body: Padding(
+          padding: const EdgeInsets.all(0.0),
+          child: SingleChildScrollView(
+              child: Padding(
+                  padding: const EdgeInsets.all(18.0),
+                  child: Text(song.content,
+                      style: const TextStyle(fontSize: 22.0)))),
+        ),
+        bottomNavigationBar: bottomBar(2, context),
+      );
+    } else {
+      return FutureBuilder(
+          future: getLatestSong(),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.data == null) {
+              return Scaffold(
+                appBar: AppBar(title: const Text("Hira")),
+                body: const Center(
+                  child: Text("Tsy misy hira voatondro"),
+                ),
+                bottomNavigationBar: bottomBar(2, context),
+              );
+            }
 
-    return Scaffold(
-      appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(65),
-          child: AppBar(
-            title: Column(
-              children: [
-                Text(song.title, style: const TextStyle(fontSize: 20)),
-                // style subtitle
-                Flex(
-                  direction: Axis.horizontal,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Text(
-                      "Tonalité ${song.key}",
-                      style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
-                    Text("Fiverenana: ${song.verses.toString()}",
-                        style: const TextStyle(fontSize: 14)),
-                  ],
-                )
-              ],
-            ),
-          )),
-      body: Padding(
-        padding: const EdgeInsets.all(0.0),
-        child: Expanded(
-            child: SingleChildScrollView(
-                child: Padding(
-                    child: Text(song.content, style: TextStyle(fontSize: 22.0)),
-                    padding: const EdgeInsets.all(18.0)))),
-      ),
-      bottomNavigationBar: const BottomBar(),
-    );
+            if (snapshot.hasData) {
+              var latestSong = snapshot.data;
+              return Scaffold(
+                appBar: PreferredSize(
+                    preferredSize: const Size.fromHeight(65),
+                    child: AppBar(
+                      title: Column(
+                        children: [
+                          Text(latestSong.title,
+                              style: const TextStyle(fontSize: 20)),
+                          // style subtitle
+                          Flex(
+                            direction: Axis.horizontal,
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              Text(
+                                "Clé: ${latestSong.key}",
+                                style: const TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.bold),
+                              ),
+                              Text("Andininy: ${latestSong.verses.toString()}",
+                                  style: const TextStyle(fontSize: 14)),
+                            ],
+                          )
+                        ],
+                      ),
+                    )),
+                body: Padding(
+                  padding: const EdgeInsets.all(0.0),
+                  child: SingleChildScrollView(
+                      child: Padding(
+                          padding: const EdgeInsets.all(18.0),
+                          child: Text('${latestSong.content}',
+                              style: const TextStyle(fontSize: 22.0)))),
+                ),
+                bottomNavigationBar: bottomBar(2, context),
+              );
+            } else {
+              return const Center(child: CircularProgressIndicator());
+            }
+          });
+    }
   }
 }
 

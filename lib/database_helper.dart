@@ -62,14 +62,23 @@ class DatabaseHelper {
   }
 
   Future<List<Song>> searchSong(String search) async {
-    final db = DatabaseHelper().database;
+    final db = await DatabaseHelper().database;
     List<Song> songs = <Song>[];
-    List<Map<String, dynamic>> maps = await db.query("songs",
+    final List<Map<String, dynamic>> maps = await db!.query("songs",
         columns: ["id", "title", "content", "key", "verses", "number"],
         where: "title LIKE ?",
         whereArgs: ["%$search%"]);
+
     for (int i = 0; i < maps.length; i++) {
-      songs.add(Song.fromMap(maps[i]));
+      var map = maps[i];
+      songs.add(Song(
+        id: int.tryParse(map["id"]) ?? 0,
+        number: int.tryParse(map["number"]) ?? 0,
+        title: map['title'],
+        content: map['content'],
+        verses: int.tryParse(map['verses']) ?? 0,
+        key: map['key'] ?? "",
+      ));
     }
     return songs;
   }
