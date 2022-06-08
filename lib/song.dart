@@ -9,12 +9,12 @@ class Song {
   final int verses;
 
   const Song({
-    required this.id,
-    required this.number,
-    required this.verses,
-    required this.title,
-    required this.content,
-    required this.key,
+    this.id = 0,
+    this.number = 0,
+    this.verses = 0,
+    this.title = "Lohateny",
+    this.content = "Tononkira",
+    this.key = "C",
   });
 
   static fromMap(Map<String, dynamic> map) {
