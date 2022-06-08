@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       title: 'Hira Fiderana',
       home: const SongGridViewScreen(),
       theme: ThemeData(
-        primarySwatch: Colors.red,
+        primarySwatch: Colors.lightGreen,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       routes: {
