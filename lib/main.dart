@@ -15,15 +15,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Hira Fiderana',
-      home: const SongGridViewScreen(),
+      home: const NumbersGridScreen(),
       theme: ThemeData(
         primarySwatch: Colors.lightGreen,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       routes: {
-        "/grid": (context) => const SongGridViewScreen(),
+        "/grid": (context) => const NumbersGridScreen(),
         "/list": (context) => const SongListScreen(),
-        "/song": (context) => const SongPage(
+        "/song": (context) => const SongScreen(
               song: Song(),
             ),
       },

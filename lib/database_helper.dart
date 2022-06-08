@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+const dbFileName = 'lyrics.db';
+
 class DatabaseHelper {
   static Database? _database;
   static DatabaseHelper? _databaseHelper;
@@ -22,7 +24,7 @@ class DatabaseHelper {
 
   Future<Database> initDB() async {
     var databasesPath = await getDatabasesPath();
-    var path = join(databasesPath, "hira_fiderana.db");
+    var path = join(databasesPath, dbFileName);
 
 // Check if the database exists
     var exists = await databaseExists(path);
@@ -37,7 +39,7 @@ class DatabaseHelper {
       } catch (_) {}
 
       // Copy from asset
-      ByteData data = await rootBundle.load(join("assets", "lyrics.db"));
+      ByteData data = await rootBundle.load(join("assets", dbFileName));
       List<int> bytes =
           data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
 

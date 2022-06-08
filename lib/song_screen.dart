@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'shared_preferences.dart';
 import 'bottom_bar.dart';
 
-class SongPage extends StatelessWidget {
-  const SongPage({super.key, required this.song});
+class SongScreen extends StatelessWidget {
+  const SongScreen({super.key, required this.song});
 
   final Song song;
 

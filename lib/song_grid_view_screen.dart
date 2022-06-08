@@ -5,8 +5,8 @@ import 'database_helper.dart';
 import 'package:flutter/material.dart';
 
 // SongGridViewScreen
-class SongGridViewScreen extends StatelessWidget {
-  const SongGridViewScreen({super.key});
+class NumbersGridScreen extends StatelessWidget {
+  const NumbersGridScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ class SongGridViewScreen extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SongPage(
+                  builder: (context) => SongScreen(
                     song: snapshot.data[index],
                   ),
                 ),
