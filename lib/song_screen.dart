@@ -80,6 +80,7 @@ class NormalSongView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var keyPresent = song.key.length > 0 ? true : false;
     return Scaffold(
       appBar: PreferredSize(
           preferredSize: const Size.fromHeight(65),
@@ -90,13 +91,16 @@ class NormalSongView extends StatelessWidget {
                 // style subtitle
                 Flex(
                   direction: Axis.horizontal,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      "Clé: ${song.key}",
-                      style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
+                    Visibility(
+                        visible: keyPresent,
+                        maintainSize: false,
+                        child: Text(
+                          "Clé: ${song.key}     ",
+                          style: const TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.bold),
+                        )),
                     Text("Andininy: ${song.verses.toString()}",
                         style: const TextStyle(fontSize: 14)),
                   ],
