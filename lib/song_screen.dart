@@ -80,7 +80,7 @@ class NormalSongView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var keyPresent = song.key.length > 0 ? true : false;
+    var keyPresent = song.key.isNotEmpty ? true : false;
     return Scaffold(
       appBar: PreferredSize(
           preferredSize: const Size.fromHeight(65),
