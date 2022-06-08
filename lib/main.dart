@@ -1,12 +1,8 @@
-import 'bottom_bar.dart';
 import 'song.dart';
-import 'database_helper.dart';
 import 'package:flutter/material.dart';
-import 'shared_preferences.dart';
 import 'song_grid_view_screen.dart';
 import 'song_list_screen.dart';
 import 'song_screen.dart';
-import 'squared_button.dart';
 
 void main() {
   runApp(const MyApp());

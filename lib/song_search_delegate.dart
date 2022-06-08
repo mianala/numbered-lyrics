@@ -1,7 +1,6 @@
 import 'song.dart';
 import 'database_helper.dart';
 import 'package:flutter/material.dart';
-import 'shared_preferences.dart';
 import 'song_screen.dart';
 
 class SongSearchDelegate extends SearchDelegate<Song> {
