@@ -1,4 +1,4 @@
-package com.example.flutter_fiderana
+package com.example.numbered_lyrics
 
 import io.flutter.embedding.android.FlutterActivity
 
