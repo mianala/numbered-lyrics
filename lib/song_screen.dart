@@ -39,7 +39,8 @@ class SongScreen extends StatelessWidget {
           child: AppBar(
             title: Column(
               children: [
-                Text(latestSong.title, style: const TextStyle(fontSize: 20)),
+                Text("${latestSong.number} ${latestSong.title}",
+                    style: const TextStyle(fontSize: 20)),
                 // style subtitle
                 Flex(
                   direction: Axis.horizontal,
@@ -87,7 +88,8 @@ class NormalSongView extends StatelessWidget {
           child: AppBar(
             title: Column(
               children: [
-                Text(song.title, style: const TextStyle(fontSize: 20)),
+                Text("${song.number} ${song.title}",
+                    style: const TextStyle(fontSize: 20)),
                 // style subtitle
                 Flex(
                   direction: Axis.horizontal,
